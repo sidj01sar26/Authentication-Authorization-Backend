@@ -4,9 +4,13 @@ require("dotenv").config();
 exports.auth = (req, res, next) => {
     try {
         //extract JWT token
-        const token = req.body.token;
+        console.log("cookie", req.cookies.token);
+        console.log("body", req.body.token);
+        console.log("header", req.header("Authorization"));
 
-        if (!token) {
+        const token = req.cookies.token || req.body.token || req.header("Authorization").replace("Bearer ", "");
+
+        if (!token || token === undefined) {
             return res.status(401).json({
                 success: false,
                 message: 'Token Missing'
@@ -22,16 +26,15 @@ exports.auth = (req, res, next) => {
         catch (error) {
             return res.status(401).json({
                 success: false,
-                message: 'Token is Invalid'
+                message: 'Token is invalid'
             });
         }
         next();
     }
-
     catch (error) {
         return res.status(401).json({
             success: false,
-            message: 'Something went wrong, while verifying the token'
+            message: 'Something went wrong while verifying the token'
         });
     }
 }
@@ -68,6 +71,6 @@ exports.isAdmin = (req, res, next) => {
         return res.status(500).json({
             success: false,
             message: 'User Role is not matching'
-        });
+        })
     }
 }
